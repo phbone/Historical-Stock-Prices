@@ -56,7 +56,6 @@ def scrapYahooPage(ticker):
                     lastdate = txt
                 if not (k % 7):
                     writer.writerow(datarow)
-                    print ",".join(datarow)
                     datarow = []
 
                 k += 1
@@ -71,7 +70,7 @@ offset = 0
 for ticker in tickers:
     # now at CFP, 62
     if offset > 60:
-        print ticker + "Stock index" + str(k)
+        print ticker + " Stock index: " + str(offset)
         scrapYahooPage(ticker)
     offset += 1
 
