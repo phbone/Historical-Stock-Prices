@@ -29,8 +29,8 @@
       <file leaf-file-name="finance.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/scrapers/finance.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.1092437" vertical-offset="710" max-vertical-offset="1305">
-              <caret line="43" column="12" selection-start-line="43" selection-start-column="12" selection-end-line="43" selection-end-column="12" />
+            <state vertical-scroll-proportion="0.29411766" vertical-offset="710" max-vertical-offset="1305">
+              <caret line="59" column="22" selection-start-line="59" selection-start-column="22" selection-end-line="59" selection-end-column="22" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
@@ -422,8 +422,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/scrapers/finance.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.1092437" vertical-offset="710" max-vertical-offset="1305">
-          <caret line="43" column="12" selection-start-line="43" selection-start-column="12" selection-end-line="43" selection-end-column="12" />
+        <state vertical-scroll-proportion="0.29411766" vertical-offset="710" max-vertical-offset="1305">
+          <caret line="59" column="22" selection-start-line="59" selection-start-column="22" selection-end-line="59" selection-end-column="22" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
           </folding>

@@ -67,13 +67,13 @@ def scrapYahooPage(ticker):
 # loop over each ticker and get data
 tickers = parseTickers(filename)
 
-k = 0
+offset = 0
 for ticker in tickers:
     # now at CFP, 62
-    if k > 60:
+    if offset > 60:
         print ticker + "Stock index" + str(k)
         scrapYahooPage(ticker)
-    k += 1
+    offset += 1
 
 
 # output to a csv
