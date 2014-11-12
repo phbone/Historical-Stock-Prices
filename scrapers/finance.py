@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import os
 import csv
-
+import re
 
 
 
@@ -34,32 +34,47 @@ def scrapYahooPage(ticker):
     csvfile = open(ticker+'.csv', 'wb')
     writer = csv.writer(csvfile)
     for i in range(67):
-
         url = 'https://ca.finance.yahoo.com/q/hp?s=' + stock + '.TO&a=' + start_month + '&b='+start_day+'&c='+start_year + '&d=' + end_month + '&e=' + end_day + '&f='+end_year+'&g=d&z=66&y='+str(pg)
         r = requests.get(url)
         soup = BeautifulSoup(r.text)
         data = soup.find(attrs={'class': 'yfnc_datamodoutline1'})
-        rows = data.findAll('td')
+        try:
+            rows = data.findAll('td')
+        except Exception:
+            print "Error in finding td tags for: " + ticker
+            pass
         datarow = []
-        k = 0
+        lastdate = " "
+        k = 1
         for row in rows:
             box = row.findAll(text=True)
             txt = ','.join(box)
-            if "Close" and "Dividend" not in txt:
+            if "Close" not in txt and "Dividend" not in txt and "-" not in txt and lastdate != txt:  # filters out dividend num, last row
                 # this box contains stock info
                 datarow.append(txt)
+                if re.search('[a-zA-Z]+', txt):
+                    lastdate = txt
                 if not (k % 7):
                     writer.writerow(datarow)
+                    print ",".join(datarow)
                     datarow = []
-            k += 1
+
+                k += 1
+
         pg += 66
 
 
 # loop over each ticker and get data
 tickers = parseTickers(filename)
 
+k = 0
 for ticker in tickers:
-    scrapYahooPage(ticker)
+    # now at CFP, 62
+    if k > 60:
+        print ticker + "Stock index" + str(k)
+        scrapYahooPage(ticker)
+    k += 1
+
 
 # output to a csv
 
