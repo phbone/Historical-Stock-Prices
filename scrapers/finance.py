@@ -4,11 +4,6 @@ import os
 import csv
 import re
 
-
-
-# import ticker symbols csv file
-filename = 'tsx100.csv'
-
 def parseTickers(file):
     tickers = []
     with open(file, 'rU') as csvfile:
@@ -23,33 +18,40 @@ def scrapYahooPage(ticker):
     # craft url query
     stock = ticker
     # month, day, year
-    start_month = '03'
+    start_month = '00'
     start_day = '1'
-    start_year = '1996'
-    end_month = '00'
+    start_year = '1980'
+    end_month = '06'
     end_day = '1'
     end_year = '2014'
     pg = 0
     # open CSV writer
     csvfile = open(ticker+'.csv', 'wb')
     writer = csv.writer(csvfile)
-    for i in range(67):
-        url = 'https://ca.finance.yahoo.com/q/hp?s=' + stock + '.TO&a=' + start_month + '&b='+start_day+'&c='+start_year + '&d=' + end_month + '&e=' + end_day + '&f='+end_year+'&g=d&z=66&y='+str(pg)
+    data_available = True
+    while data_available:
+        url = 'https://ca.finance.yahoo.com/q/hp?s=' + stock + '&a=' + start_month + '&b='+start_day+'&c='+start_year + '&d=' + end_month + '&e=' + end_day + '&f='+end_year+'&g=d&z=66&y='+str(pg)
         r = requests.get(url)
         soup = BeautifulSoup(r.text)
         data = soup.find(attrs={'class': 'yfnc_datamodoutline1'})
         try:
             rows = data.findAll('td')
         except Exception:
-            print "Error in finding td tags for: " + ticker
+            if(lastdate):
+                print "Last row of prices: " + str(lastdate)
+            else:
+                print "No data available"
+            data_available = False
             pass
         datarow = []
         lastdate = " "
+        # filter out rows for page end, dividend, split
+        exclude = ['Close', 'Dividend', "-", ":"]
         k = 1
         for row in rows:
             box = row.findAll(text=True)
             txt = ','.join(box)
-            if "Close" not in txt and "Dividend" not in txt and "-" not in txt and lastdate != txt:  # filters out dividend num, last row
+            if not any(sub in txt for sub in exclude) and lastdate != txt:  # filters out dividend num, last row
                 # this box contains stock info
                 datarow.append(txt)
                 if re.search('[a-zA-Z]+', txt):
@@ -57,22 +59,27 @@ def scrapYahooPage(ticker):
                 if not (k % 7):
                     writer.writerow(datarow)
                     datarow = []
-
                 k += 1
-
         pg += 66
 
 
+
+# import ticker symbols csv file
+filename = 's&p500.csv'
+offset = int(raw_input("Enter an offset to start: "))
+index = 0
+
 # loop over each ticker and get data
 tickers = parseTickers(filename)
+print "Fetching from file: " + filename + "..."
 
-offset = 0
 for ticker in tickers:
-    # now at CFP, 62
-    if offset > 60:
-        print ticker + " Stock index: " + str(offset)
+    ticker = ticker.replace('.', '-')
+    # now at EQR, 170
+    if index >= offset:
+        print "Scraping Stock ("+str(index)+"): " + ticker
         scrapYahooPage(ticker)
-    offset += 1
+    index += 1
 
 
 # output to a csv
