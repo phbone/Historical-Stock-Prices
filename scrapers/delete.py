@@ -15,17 +15,18 @@ def parseTickers(file):
 
 def deleteDuplicates(ticker):
     rows = []
-    lastmonth = "Oct"
-    with open('input/'+ticker+'.csv', 'rb') as inputfile:
+    lastmonth = " "
+    with open('output/scrape/'+ticker+'.csv', 'rb') as inputfile:
         reader = csv.reader(inputfile)
-        headers = next(reader)  # collect first row as headers for the output
         for row in reader:
             key = (row[0], row[1][:5])
             month = key[0][:3]
-            if month != lastmonth and key[0][:6] != "May 29":
-                # 2 consequtive months are not the same
-                rows.append(row)
-                lastmonth = month
+            if month == lastmonth:
+                # 2 consequtive months are the same
+                removed = rows.pop()
+                print "Removed: " + removed
+            rows.append(row)
+            lastmonth = month
 
     with open('output/delete/'+ticker+'.csv', 'wb') as outputfile:
         writer = csv.writer(outputfile)
@@ -35,7 +36,7 @@ def deleteDuplicates(ticker):
 
 
 # import ticker symbols csv file
-filename = 'input/inflation_tickers.csv'
+filename = 'input/oldsp500.csv'
 offset = int(raw_input("Enter an offset to start: "))
 index = 0
 
@@ -52,6 +53,7 @@ for ticker in tickers:
     ticker = ticker.replace('.', '-')
     print "Processing Stock ("+str(index)+"): " + ticker
     deleteDuplicates(ticker)
+    index +=1
 # output to a csv
 
 

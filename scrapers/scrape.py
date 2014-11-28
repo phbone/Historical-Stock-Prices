@@ -46,10 +46,10 @@ def scrapYahooPage(ticker):
                     print "No data available"
                 data_available = False
                 pass
-            daterow = []
-            pricerow = []
+            dateitem = []
+            priceitem = []
             lastdate = " "
-            lastrow = " "
+            lastmon = " "
             month_dict = {'01': 'Jan',
                           '02': 'Feb',
                           '03': 'Mar',
@@ -64,50 +64,50 @@ def scrapYahooPage(ticker):
                           '12': 'Dec'}
             # filter out rows for page end, dividend, split
             exclude = ['Close', 'Dividend', ":", "Split"]
-            k = 1
             for row in rows:
                 box = row.findAll(text=True)
-                txt = ','.join(box)
-                if not any(sub in txt for sub in exclude) and lastdate != txt:  # filters out dividend num, last row
-                    # this box contains stock info
-                    if re.search('[a-zA-Z]+', txt):
-                        lastdate = txt
-                        if re.search('[a-zA-Z]+', lastrow):
-                            # dividends being paid
-                            daterow = []
-                            k +=6
-                        daterow.append(txt)
-                    elif '-' in txt:
-                        # dates formatted differently
-                        datetxt = txt.replace("-", " ")
-                        day = str(datetxt[8:11])
-                        mon = str(datetxt[5:7])
-                        year = str(datetxt[:4])
-                        newdate = str(month_dict.get(mon)) + " " + day + " " + year
-                        lastdate = newdate
-                        if re.search('[a-zA-Z]+', lastrow):
-                            # dividends being paid
-                            daterow = []
-                            k +=6
-                        daterow.append(newdate)
+                item = ','.join(box)
+                if re.search('[a-zA-Z]+', item) and not any(n in item for n in exclude):
+                    # date format 1 Mon day Year
+
+                    date = item.replace(",", "")
+                    date = date.replace('"', "")
+                    if lastmon not in date:
+                        dateitem.append(date)
                     else:
-                        pricerow.append(txt)
-                    if not (k % 7):
-                        # change to datarow for entire row on Yahoo
-                        pricedate = daterow[0].replace(",", "")
-                        writer.writerow([pricedate, pricerow[0]])
-                        daterow = []
-                        pricerow = []
-                    k += 1
-                    lastrow = txt
+                        dateitem = [date]
+
+                elif '-' in item:
+                    # date in format 2 year-mon-day
+                    datetxt = item.replace("-", " ")
+                    date = str(month_dict.get(str(datetxt[5:7]))) + " " + str(datetxt[8:11]) + " " + str(datetxt[:4])
+                    if lastmon not in date:
+                        dateitem.append(date)
+                    else:
+                        dateitem = [date]
+
+                elif '.' in item and 'Dividend' not in item:
+                    # price object
+                    if dateitem: # add if date has already been set
+                        priceitem.append(item)
+
+                elif 'Dividend' in item:
+                    # Dividend payment, delete previous date
+                    dateitem = []
+                    priceitem = []
+
+
+                if dateitem and priceitem:
+                    writer.writerow([dateitem[0], priceitem[0]])
+                    lastdate = dateitem[0]
+                    lastmon = lastdate[:3]
+                    dateitem = []
+                    priceitem = []
+
             pg += 66
             if pg > 594:
                 data_available = False
         else:
-            if(lastdate):
-                print "Last row of prices: " + str(lastdate)
-            else:
-                print "No data available on: " + ticker
             data_available = False
 
 
